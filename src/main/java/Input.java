@@ -66,7 +66,7 @@ public final class Input {
     public String getString(String sPrompt) {
         System.out.print(sPrompt);
         scannerKeyboard.useDelimiter("\r\n"); // Setting this delimiter ensures that we capture everything up to the <Enter> key. Without this, input stops at the next whitespace (space, tab, newline etc.).
-        String sInput = scannerKeyboard.next();
+        String sInput = scannerKeyboard.nextLine();
         scannerKeyboard.reset(); // The preceding use of useDelimiter() changed the state of the Scanner object. reset() re-establishes the original state.
         return sInput;
     } // end String getString(String sPrompt)
