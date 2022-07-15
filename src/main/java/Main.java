@@ -21,21 +21,22 @@ public class Main {
         if (input == 1) {
             // yes? prompt for file name and try to restore from old file
             sc.getString("");
-            String fileName = sc.getString("Do you want to read from an old file? If yes, input file path here: ");
-            boolean exists = Files.isReadable(Path.of(fileName));
+            boolean exists = Files.isReadable(Path.of("people.csv"));
             try {
                 if (exists) {
                     // read from file and make a list from people
-                    readFromFile(fileName);
+                    System.out.println("We found the file and we are reading it!");
+                    readFromFile("people.csv");
                     mainMenuPrompt();
                 } else {
                     // no ? start brand-new list
-                    System.out.println("This file was not found. Try again or start a new list.");
-                    restoreList();
+                    System.out.println("This file was not found start a new list.");
+                    mainMenuPrompt();
 
                   }
-            } catch (FileNotFoundException f) {
-                System.out.println(f);
+            } catch (Exception e) {
+                System.out.println("Looks like theres something wrong: " + e);
+                System.out.println("Lets create a new file.");
                 mainMenuPrompt();
             }
         }
