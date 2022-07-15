@@ -21,7 +21,7 @@ public class Person {
         System.out.println("Initialized person object from CSV string");
         System.out.println(this);
     }
-
+    public Person() {};
     public String formatAsCSV() {
         StringBuffer personString = new StringBuffer();
         personString.append(firstName);

@@ -1,18 +1,29 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         // return old or new list
         // prompt the user and run methods based on their choice
         restoreList();
+        System.out.println("Printing people from main: " + PeopleSingleton.getInstance().getPeople());
+        saveListAsJSON(PeopleSingleton.getInstance().getPeople());
     }
+    static void saveListAsJSON(List<Person> personList) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(personList);
 
+        mapper.writeValue(new File("people.json"), personList);
+        System.out.println("This is our Json output: " + json);
+    }
 
     private static void restoreList() throws IOException {
         Input sc = Input.getInstance();
@@ -27,6 +38,7 @@ public class Main {
                     // read from file and make a list from people
                     System.out.println("We found the file and we are reading it!");
                     readFromFile("people.csv");
+                    List<Person> restoredPersons = Arrays.asList(new ObjectMapper().readValue(new File("people.csv"), Person[].class));
                     mainMenuPrompt();
                 } else {
                     // no ? start brand-new list
@@ -92,12 +104,12 @@ public class Main {
 
         // for some reason this doesn't like when I pass in peopleList
         for (Person person : PeopleSingleton.getInstance().getPeople()) {
-            System.out.println(person);
+            System.out.println("Before formatting person: " + person);
             String personCSV = person.formatAsCSV();
+            System.out.println("After formatting person: " + personCSV);
             CSV.append(personCSV + "\n");
             writeToFile("people.csv", String.valueOf(CSV));
         }
-        System.exit(0);
     }
 
     static String readFromFile(String fileName) throws IOException {
