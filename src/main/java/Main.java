@@ -1,8 +1,8 @@
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -24,21 +24,39 @@ public class Main {
         mapper.writeValue(new File("people.json"), personList);
         System.out.println("This is our Json output: " + json);
     }
+    public static List<Person> readJson() throws JsonProcessingException {
+        try {
+            return Arrays.asList(new ObjectMapper().readValue(new File("people.json"), Person[].class));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private static void restoreList() throws IOException {
+        String fileName = null;
         Input sc = Input.getInstance();
                 // ask the user if they want to restore list of people
         int input = sc.getInt("Would you like to restore a list of people? If yes type 1, any other number will be interpreted as no: ");
         if (input == 1) {
             // yes? prompt for file name and try to restore from old file
             sc.getString("");
-            boolean exists = Files.isReadable(Path.of("people.csv"));
+           int fileToRestore = sc.getInt("Would you like to try to restore from 1. json or from 2. csv?");
+           if (fileToRestore == 1){
+               fileName = "people.json";
+           } else if (fileToRestore == 2) {
+               fileName = "people.csv";
+               readJson();
+               return;
+           } else {
+               System.out.println("Must enter 1 or 2. Let's try again.");
+               restoreList();
+           }
+            boolean exists = Files.isReadable(Path.of(fileName));
             try {
                 if (exists) {
                     // read from file and make a list from people
                     System.out.println("We found the file and we are reading it!");
                     readFromFile("people.csv");
-                    List<Person> restoredPersons = Arrays.asList(new ObjectMapper().readValue(new File("people.csv"), Person[].class));
                     mainMenuPrompt();
                 } else {
                     // no ? start brand-new list
