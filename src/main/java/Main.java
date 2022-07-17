@@ -11,26 +11,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // return old or new list
-        // prompt the user and run methods based on their choice
         restoreList();
         System.out.println("Printing people from main: " + PeopleSingleton.getInstance().getPeople());
-        saveListAsJSON(PeopleSingleton.getInstance().getPeople());
+        FileReader.saveListAsJSON(PeopleSingleton.getInstance().getPeople());
     }
-    static void saveListAsJSON(List<Person> personList) throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(personList);
 
-        mapper.writeValue(new File("people.json"), personList);
-        System.out.println("This is our Json output: " + json);
-    }
-    public static List<Person> readJson() throws JsonProcessingException {
-        try {
-            return Arrays.asList(new ObjectMapper().readValue(new File("people.json"), Person[].class));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     private static void restoreList() throws IOException {
         String fileName = null;
@@ -43,10 +28,10 @@ public class Main {
            int fileToRestore = sc.getInt("Would you like to try to restore from 1. json or from 2. csv?");
            if (fileToRestore == 1){
                fileName = "people.json";
+               FileReader.readJson();
+               System.out.println(FileReader.readJson());
            } else if (fileToRestore == 2) {
                fileName = "people.csv";
-               readJson();
-               return;
            } else {
                System.out.println("Must enter 1 or 2. Let's try again.");
                restoreList();
@@ -56,7 +41,8 @@ public class Main {
                 if (exists) {
                     // read from file and make a list from people
                     System.out.println("We found the file and we are reading it!");
-                    readFromFile("people.csv");
+                    FileReader.readFromFile("people.csv");
+                    System.out.println(FileReader.readFromFile("people.csv"));
                     mainMenuPrompt();
                 } else {
                     // no ? start brand-new list
@@ -107,6 +93,7 @@ public class Main {
 
         PeopleSingleton.getInstance().addPerson(person);
         mainMenuPrompt();
+
     }
 
     private static void printList() throws IOException {
@@ -117,52 +104,16 @@ public class Main {
     private static void exitProgram() throws IOException {
         // exit the program: save all the persons on list to my file
         StringBuilder CSV = new StringBuilder();
-        // PeopleSingleton people = PeopleSingleton.getInstance();
-        // List peopleList = people.getPeople();
 
-        // for some reason this doesn't like when I pass in peopleList
         for (Person person : PeopleSingleton.getInstance().getPeople()) {
             System.out.println("Before formatting person: " + person);
             String personCSV = person.formatAsCSV();
             System.out.println("After formatting person: " + personCSV);
-            CSV.append(personCSV + "\n");
-            writeToFile("people.csv", String.valueOf(CSV));
+            CSV.append(personCSV);
+            CSV.append("\n");
+            FileReader.appendToFile("people.csv", CSV);
         }
     }
 
-    static String readFromFile(String fileName) throws IOException {
-        String returnString = "";
-        Scanner fileReader = null;
-        try {
-            File myFile = new File(fileName);
-            fileReader = new Scanner(myFile);
-            while (fileReader.hasNextLine()) {
-                returnString += fileReader.nextLine();
-                // parse string
-                String[] info = returnString.split(",");
-                // create student from parsed string
-                String firstName = info[0];
-                String lastName= info[1];
-                int birthYear= Integer.parseInt(info[2]);
-                int birthMonth= Integer.parseInt(info[3]);
-                int birthDay= Integer.parseInt(info[4]);
-                Person person = new Person(firstName, lastName, birthYear, birthMonth, birthDay);
-                // add person to list
-            }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        } finally {
-            if (fileReader != null)
-                fileReader.close();
-        }
-        return returnString;
-    }
 
-    static void writeToFile(String fileName, String text) throws IOException {
-        try (FileWriter fileWriter = new FileWriter(fileName)) {
-            fileWriter.write(text);
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
-    }
 }
